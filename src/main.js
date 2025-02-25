@@ -44,6 +44,14 @@ function isOverlapping(newPos) {
     bottom: (parseFloat(newPos.top) / 100 * CONTAINER_HEIGHT) + CLOUD_HEIGHT
   };
 
+  // Check if the cloud would be outside the container bounds
+  if (newRect.right > CONTAINER_WIDTH || 
+      newRect.bottom > CONTAINER_HEIGHT || 
+      newRect.left < 0 || 
+      newRect.top < 0) {
+    return true;
+  }
+
   // Fixed the logic: return true if ANY rectangle overlaps
   return placedClouds.some(rect => !(
     newRect.left > rect.right + PADDING ||    // newRect is to the right
@@ -58,9 +66,10 @@ function generateRandomPosition() {
   let position;
   
   do {
+    // Adjust the random position generation to account for cloud dimensions
     position = {
-      left: `${Math.random() * (CONTAINER_WIDTH - CLOUD_WIDTH) / CONTAINER_WIDTH * 100}%`,
-      top: `${Math.random() * (CONTAINER_HEIGHT - CLOUD_HEIGHT) / CONTAINER_HEIGHT * 100}%`
+      left: `${Math.random() * (100 - (CLOUD_WIDTH / CONTAINER_WIDTH * 100))}%`,
+      top: `${Math.random() * (100 - (CLOUD_HEIGHT / CONTAINER_HEIGHT * 100))}%`
     };
     attempts++;
   } while (isOverlapping(position) && attempts < 100);
