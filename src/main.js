@@ -1,4 +1,3 @@
-
 const keywords = [
   {
     title: "distress tolerance",
@@ -26,11 +25,54 @@ const keywords = [
   }
 ];
 
-function generateRandomPosition() {
-  return {
-    left: `${Math.random() * 60}%`,
-    top: `${Math.random() * 60 + 20}%`
+// Keep track of placed clouds' rectangles
+const placedClouds = [];
+
+// Cloud dimensions (approximate)
+const CLOUD_WIDTH = 400;
+const CLOUD_HEIGHT = 200;
+const CONTAINER_WIDTH = 1200;
+const CONTAINER_HEIGHT = 800;
+const PADDING = 20;
+
+function isOverlapping(newPos) {
+  const newRect = {
+    left: parseFloat(newPos.left) / 100 * CONTAINER_WIDTH,
+    top: parseFloat(newPos.top) / 100 * CONTAINER_HEIGHT,
+    right: (parseFloat(newPos.left) / 100 * CONTAINER_WIDTH) + CLOUD_WIDTH,
+    bottom: (parseFloat(newPos.top) / 100 * CONTAINER_HEIGHT) + CLOUD_HEIGHT
   };
+
+  return placedClouds.some(rect => !(
+    newRect.right + PADDING < rect.left ||
+    newRect.left > rect.right + PADDING ||
+    newRect.bottom + PADDING < rect.top ||
+    newRect.top > rect.bottom + PADDING
+  ));
+}
+
+function generateRandomPosition() {
+  let attempts = 0;
+  let position;
+  
+  do {
+    position = {
+      left: `${Math.random() * (CONTAINER_WIDTH - CLOUD_WIDTH) / CONTAINER_WIDTH * 100}%`,
+      top: `${Math.random() * (CONTAINER_HEIGHT - CLOUD_HEIGHT) / CONTAINER_HEIGHT * 100}%`
+    };
+    attempts++;
+  } while (isOverlapping(position) && attempts < 100);
+
+  // Add the new position to placed clouds
+  const rect = {
+    left: parseFloat(position.left) / 100 * CONTAINER_WIDTH,
+    top: parseFloat(position.top) / 100 * CONTAINER_HEIGHT,
+    right: (parseFloat(position.left) / 100 * CONTAINER_WIDTH) + CLOUD_WIDTH,
+    bottom: (parseFloat(position.top) / 100 * CONTAINER_HEIGHT) + CLOUD_HEIGHT
+  };
+  placedClouds.push(rect);
+
+  return position;
 }
 
 function createKeywordCloud(keyword, position) {
@@ -49,6 +91,7 @@ function createKeywordCloud(keyword, position) {
 
 function initializeKeywordClouds() {
   const container = document.getElementById('cloudContainer');
+  placedClouds.length = 0; // Reset placed clouds
   
   keywords.forEach(keyword => {
     const position = generateRandomPosition();
