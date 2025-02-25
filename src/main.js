@@ -1,3 +1,4 @@
+
 const keywords = [
   {
     title: "distress tolerance",
@@ -43,11 +44,12 @@ function isOverlapping(newPos) {
     bottom: (parseFloat(newPos.top) / 100 * CONTAINER_HEIGHT) + CLOUD_HEIGHT
   };
 
+  // Fixed the logic: return true if ANY rectangle overlaps
   return placedClouds.some(rect => !(
-    newRect.right + PADDING < rect.left ||
-    newRect.left > rect.right + PADDING ||
-    newRect.bottom + PADDING < rect.top ||
-    newRect.top > rect.bottom + PADDING
+    newRect.left > rect.right + PADDING ||    // newRect is to the right
+    newRect.right + PADDING < rect.left ||    // newRect is to the left
+    newRect.top > rect.bottom + PADDING ||    // newRect is below
+    newRect.bottom + PADDING < rect.top       // newRect is above
   ));
 }
 
